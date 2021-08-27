@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="UsageMapper">
+
+	<select id="usage_select" resultType="UsageDTO">
+		select cpuusage,
+		memusage,diskusage, nwusage
+		from Serverusage, UserServer
+		where
+		UserServer.id =
+		#{id} and UserServer.ip = Serverusage.ip
+		order by Serverusage.date desc
+		limit 1
+	</select>
+
+	<select id="coreusage_select" resultType="UsageDTO">
+		select corename, coreusage
+		from coredata, UserServer
+		where UserServer.id=#{id} and coredata.ip=UserServer.ip
+		and coredata.corename REGEXP '^[[:digit:]]+$'
+		order by date desc
+		limit 4
+	</select>
+
+
+</mapper>

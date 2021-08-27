@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- <insert id="th_insert"> insert into threshold(id,cpu_warning,cpu_danger,mem_warning,mem_danger, 
+	nw_warning,nw_danger,disk_warning,disk_danger,date) values(#{id},#{cpu_warning},#{cpu_danger},#{mem_warning},#{mem_danger}, 
+	#{nw_warning},#{nw_danger},#{disk_warning},#{disk_danger},now()) </insert> -->
+<mapper namespace="ServerMapper">
+	<insert id="insert_server">
+		insert into UserServer(id,ip,public_ip,pw,username)
+		values(
+		#{id}, #{ip},#{public_ip}, #{pw}, #{username})
+
+	</insert>
+	<select id="check_ip" resultType="int">
+		select count(*) from UserServer
+		where ip = #{ip}
+
+	</select>
+
+	<select id="log_select" resultType="LogDTO">
+		select
+		fromHost,deviceTime,receivedAt,facility,
+		priority,message,syslogTag,programname
+		from UserServer, rsyslogmessages
+		where UserServer.id = #{id}
+		and (
+		(rsyslogmessages.fromHost="127.0.0.1"
+		)
+		or
+		(rsyslogmessages.fromHost=UserServer.ip))
+		order by
+		rsyslogmessages.receivedAt desc
+		LIMIT #{pageStart}, #{perPageNum}
+
+	</select>
+	
+	<select id="select_info" resultType="ServerInfoDTO">
+		select info.ip, hostname, hw,osver, version, corenum
+		from info,UserServer
+		where UserServer.id =#{id} and info.ip = UserServer.ip
+
+	</select>
+
+
+
+	<select id="log_count" resultType="int">
+		select
+		count(*)
+		from UserServer,
+		rsyslogmessages
+		where UserServer.id = #{id}
+		and UserServer.ip =
+		rsyslogmessages.fromHost
+		order by
+		rsyslogmessages.receivedAt
+
+
+	</select>
+</mapper>

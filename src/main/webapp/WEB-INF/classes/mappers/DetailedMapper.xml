@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="DetailedMapper">
+	<select id="select_cpuDetailed" resultType="CpuDetailedDTO">
+		select
+		cpuusage,cpuuser,cpusys, cpunice, cpuidle,cpuiowait, cpusteal
+		from
+		cpudata, UserServer
+		where UserServer.id=#{id} and UserServer.ip
+		=cpudata.ip
+		order by cpudata.date desc
+		limit 1
+	</select>
+	<select id="select_memDetailed" resultType="MemDetailedDTO">
+		select memnominal,memactual, swapusage,memtotal, memused, memfree,
+		memshared,membuff, memable,swaptotal, swapused, swapfree
+		from memdata,
+		UserServer
+		where
+		UserServer.id=#{id} and UserServer.ip= memdata.ip
+		order by date
+		limit 1
+
+
+	</select>
+	<select id="select_diskDetailed" resultType="DiskDetailedDTO">
+		select
+		diskusage,disksize, diskused, diskio, diskread, diskwrite, disktime, diskwait
+		from diskdata,UserServer
+		where id=#{id} and UserServer.ip = diskdata.ip
+		order by diskdata.date desc
+		limit 1
+	</select>
+
+	<select id="select_nwDetailed" resultType="NwDetailedDTO">
+		select netusage,
+		netinteruse, nettranuse, nettraf, netlos
+		from netdata, UserServer
+		where
+		UserServer.id =#{id} and UserServer.ip= netdata.ip
+		order by date
+		limit 1
+
+	</select>
+</mapper>

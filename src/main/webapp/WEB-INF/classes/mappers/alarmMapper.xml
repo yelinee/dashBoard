@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="alarmMapper">
+	<select id="th_check" resultType="int">
+		select count(*) from threshold
+		where threshold.id = #{id}
+	</select>
+	<insert id="th_insert">
+		insert into
+		threshold(id,ip,cpu_warning,cpu_danger,mem_warning,mem_danger,
+		nw_warning,nw_danger,disk_warning,disk_danger,netusernum,portuser,date)
+		values(#{id},
+		#{ip},#{cpu_warning},#{cpu_danger},#{mem_warning},#{mem_danger},
+		#{nw_warning},#{nw_danger},#{disk_warning},#{disk_danger},#{netusernum},#{portuser},now())
+
+	</insert>
+
+	<update id="th_update">
+		update threshold set
+		cpu_warning = #{cpu_warning},
+		cpu_danger = #{cpu_danger},
+		mem_warning =#{mem_warning},
+		mem_danger
+		=#{mem_danger},
+		nw_warning = #{nw_warning},
+		nw_danger = #{nw_danger},
+		disk_warning = #{disk_warning},
+		disk_danger = #{disk_danger},
+		netusernum = #{netusernum},
+		portuser = #{portuser},
+		date
+		=now()
+		where threshold.id = #{id}
+
+	</update>
+	<select id="th_select" resultType="ThresholdDTO">
+		select
+		cpu_warning,cpu_danger,mem_warning,mem_danger,nw_warning,nw_danger,
+		disk_warning,disk_danger, netusernum, portuser from threshold
+		where threshold.id = #{id}
+
+	</select>
+
+	<select id="th_ch" resultType="int"> <!-- check박스 설정된것 갯수 뽑기 -->
+		select count(*) from threshold
+		where threshold.id = #{id} and
+		threshold.cpu_check is not null and
+		threshold.mem_check is not null and
+		threshold.nw_check is not null
+		and threshold.disk_check is not null
+
+
+	</select>
+
+	<!-- <insert id ="th_Check_insert" parameterType ="java.util.HashMap" > 
+		insert into threshold(id,cpu_check,mem_check,disk_check,nw_check) values 
+		(#{id},#{cpu_check},#{mem_check},#{disk_check},#{nw_check}) </insert> -->
+
+	<!-- cpu over check -->
+	<select id="over_warning_check" resultType="AlarmSettingDTO">
+		 <![CDATA[
+				select user.id, user.email, threshold.ip, Serverusage.cpuusage as 'usage', Serverusage.date,user.hp
+		from user, Serverusage,threshold
+		where threshold.id="1111" and threshold.cpu_check="checked" and threshold.cpu_warning <= (select cpuusage
+		from Serverusage
+		order by date
+		desc limit 1)
+		order by Serverusage.date desc
+		limit 1
+		]]>
+
+	</select>
+
+
+	<select id="over_danger_check" resultType="AlarmSettingDTO">
+	<![CDATA[
+			select user.id, user.email, user.hp, threshold.ip, Serverusage.cpuusage as 'usage', Serverusage.date
+		from user, Serverusage,threshold
+		where threshold.id="1111" and threshold.cpu_check="checked" and threshold.cpu_danger <= (select cpuusage
+		from Serverusage
+		order by date
+		desc limit 1)
+		order by Serverusage.date desc
+		limit 1
+		]]>
+	</select>
+
+	<select id="over_memdanger_check" resultType="AlarmSettingDTO">
+	<![CDATA[
+			select user.id, user.email, user.hp, threshold.ip, Serverusage.memusage as 'usage', Serverusage.date
+		from user, Serverusage,threshold
+		where threshold.id="1111" and threshold.mem_check="checked" and threshold.mem_danger <= (select memusage
+		from Serverusage
+		order by date
+		desc limit 1)
+		order by Serverusage.date desc
+		limit 1
+	]]>
+	</select>
+	<select id="over_memwarning_check" resultType="AlarmSettingDTO">
+	<![CDATA[
+				select user.id, user.email, user.hp, threshold.ip, Serverusage.memusage as 'usage', Serverusage.date
+		from user, Serverusage,threshold
+		where threshold.id="1111" and threshold.mem_check="checked" and threshold.mem_warning <= (select memusage
+		from Serverusage
+		order by date
+		desc limit 1)
+		order by Serverusage.date desc
+		limit 1
+	]]>
+	</select>
+	<select id="over_diskwarning_check" resultType="AlarmSettingDTO">
+	<![CDATA[
+				select user.id, user.email, user.hp, threshold.ip, Serverusage.diskusage as 'usage', Serverusage.date
+		from user, Serverusage,threshold
+		where threshold.id="1111" and threshold.disk_check="checked" and threshold.disk_warning <= (select diskusage
+		from Serverusage
+		order by date
+		desc limit 1)
+		order by Serverusage.date desc
+		limit 1
+	]]>
+	</select>
+	<select id="over_diskdanger_check" resultType="AlarmSettingDTO">
+	<![CDATA[
+			select user.id, user.email, user.hp, threshold.ip, Serverusage.diskusage as 'usage', Serverusage.date
+		from user, Serverusage,threshold
+		where threshold.id="1111" and threshold.disk_check="checked" and threshold.disk_danger <= (select diskusage
+		from Serverusage
+		order by date
+		desc limit 1)
+		order by Serverusage.date desc
+		limit 1
+	]]>
+	</select>
+	<select id="over_nwdanger_check" resultType="AlarmSettingDTO">
+	<![CDATA[
+				select user.id, user.email, user.hp, threshold.ip, Serverusage.nwusage as 'usage', Serverusage.date
+		from user, Serverusage,threshold
+		where threshold.id="1111" and threshold.nw_check="checked" and threshold.nw_danger <= (select nwusage
+		from Serverusage
+		order by date
+		desc limit 1)
+		order by Serverusage.date desc
+		limit 1
+	
+	
+	]]>
+	</select>
+
+	<select id="over_nwwarning_check" resultType="AlarmSettingDTO">
+<![CDATA[
+		select user.id, user.email, user.hp, threshold.ip, Serverusage.nwusage as 'usage', Serverusage.date
+		from user, Serverusage,threshold
+		where threshold.id="1111" and threshold.nw_check="checked" and threshold.nw_warning <= (select nwusage
+		from Serverusage
+		order by date
+		desc limit 1)
+		order by Serverusage.date desc
+		limit 1
+]]>
+	</select>
+	<select id="select_email" resultType="String">
+		select email from user
+		where id=#{id}
+	</select>
+
+
+
+
+
+	<update id="th_Check_update" parameterType="java.util.HashMap">
+		update threshold set
+		cpu_check =#{cpu_check}, mem_check=#{mem_check},
+		disk_check =
+		#{disk_check},nw_check = #{nw_check}
+		where id = #{id}
+
+	</update>
+
+	<select id="alarm_select" resultType="AlarmDTO">
+		select id, date,
+		cpu_warning, cpu_danger, mem_warning,
+		mem_danger, nw_warning,
+		nw_danger, disk_warning, disk_danger
+		form alarm
+		where id = #{id} and ip
+		= #{ip}
+
+	</select>
+
+	<insert id="insertCpuLog">
+		insert into
+		alarmLog(ip,resource,resourceUsage,date,level)
+		values(#{ip},#{resource},#{resourceUsage},#{date},#{level});
+	</insert>
+	<insert id="insertMemLog">
+		insert into
+		alarmLog(ip,resource,resourceUsage,date,level)
+		values(#{ip},
+		#{resource},#{resourceUsage},#{date},#{level});
+	</insert>
+	<insert id="insertDiskLog">
+		insert into
+		alarmLog(ip,
+		resource,resourceUsage,date,level)
+		values(#{ip},
+		#{resource},#{resourceUsage},#{date},#{level});
+	</insert>
+	<insert id="insertNwLog">
+		insert into
+		alarmLog(ip,resource,resourceUsage,date,level)
+		values(#{ip},
+		#{resource},#{resourceUsage},#{date},#{level});
+	</insert>
+
+
+
+	<select id="selectAlarmLog" resultType="AlarmLogDTO">
+		select UserServer.ip,
+		resource, resourceUsage, level, date
+		from alarmLog, UserServer
+		where
+		UserServer.id="1111" and alarmLog.ip = UserServer.ip
+		order by
+		alarmLog.date desc
+		LIMIT #{pageStart}, #{perPageNum}
+	</select>
+
+	<select id="select_alarmCount" resultType="int">
+		select count(*) from
+		alarmLog, UserServer
+		where UserServer.id = #{id} and UserServer.ip=
+		alarmLog.ip
+
+	</select>
+
+
+	<select id="select_alarm4" resultType="AlarmLogDTO">
+		select UserServer.ip,
+		resource, resourceUsage, level, date
+		from alarmLog,
+		UserServer
+		where
+		UserServer.id="1111" and alarmLog.ip = UserServer.ip
+		order by date desc
+		limit 4
+	</select>
+
+
+	<select id="ip_select" resultType="String">
+		select ip from UserServer
+		where id = #{id}
+
+	</select>
+
+	<select id="th_Check_select" resultType="java.util.HashMap">
+		select
+		cpu_check,mem_check,nw_check,disk_check
+		from threshold
+		where id = #{id}
+
+	</select>
+</mapper>
